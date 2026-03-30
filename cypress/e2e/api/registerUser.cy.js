@@ -5,6 +5,7 @@ beforeEach( function()  {
 })
 
 describe('User registratior: API', function()  {
+
   it('Register user with valid credentials', function() {
     const validUser = this.data.validCredentials
     registerUserPage.sendAPIdata(validUser).then((response) => {
@@ -13,7 +14,6 @@ describe('User registratior: API', function()  {
   })
 
   it('Try to register user with already registered email', function() {
-    cy.wait(10000)
     const validUser = this.data.validCredentials
     registerUserPage.sendAPIdata(validUser).then((response) => {
       registerUserPage.validateAPIresponse(response, 400)
@@ -25,5 +25,6 @@ describe('User registratior: API', function()  {
     registerUserPage.sendAPIdata(invalidUser).then((response) => {
       registerUserPage.validateAPIresponse(response, 400)
     })
+
   })
 })
