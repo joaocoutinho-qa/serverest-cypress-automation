@@ -1,4 +1,4 @@
-Cypress.Commands.add('registerUser', () => {
+Cypress.Commands.add('registerNormalUser', () => {
     
       cy.env(['apiUrl']).then(({ apiUrl }) => {
          cy.fixture('userData').then((data) => {
@@ -6,7 +6,7 @@ Cypress.Commands.add('registerUser', () => {
                 method: 'POST',
                 url: `${(apiUrl)}/usuarios`, 
                 failOnStatusCode: false,
-                body: data.validCredentials,
+                body: data.normalUser,
             })
         }) 
     })
@@ -46,12 +46,14 @@ Cypress.Commands.add('adminUserLogin', () => {
     })
 })
 
-Cypress.Commands.add('userLogin', () => {
-    cy.fixture('userData').then((data) => {
-        cy.get('[data-testid="email"]').clear().type(data.normalUser.email)
-        cy.get('[data-testid="senha"]').clear().type(data.normalUser.password)
-        cy.get('[data-testid="entrar"]').clear().click()
-    })
+Cypress.Commands.add('normalUserLogin', () => {
+        
+    cy.visit('/')
+        cy.fixture('userData').then((data) => {
+            cy.get('[data-testid="email"]').clear().type(data.normalUser.email)
+            cy.get('[data-testid="senha"]').clear().type(data.normalUser.password)
+            cy.get('[data-testid="entrar"]').click()
+        })
 })
 
 Cypress.Commands.add('registerProduct', () => {
@@ -71,7 +73,7 @@ Cypress.Commands.add('registerProduct', () => {
                     body: data.validProduct,
                 }).then((response) => {
                     console.log('Request Headers:', { Authorization: token });
-                    return response;
+                    return response
                 })
             })
         })

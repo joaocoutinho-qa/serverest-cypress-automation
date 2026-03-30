@@ -14,23 +14,23 @@ module.exports = {
   },
 
   validProduct: {
-    nome: `JBL 720BT ${Date.now()}`,
-    preco: 359,
+    nome: `TV Samsung ${Date.now()}`,
+    preco: 3700,
     descricao: "Headset",
-    quantidade: 200
+    quantidade: 125
   },
 
   adminUser: {
     nome: "Joao Coutinho",
-    email: `joao.coutinho${Date.now()}@email.com`,
-    password: "senha12345",
+    email: `joaocoutinhoadmin${Date.now()}@email.com`,
+    password: "admin1234",
     administrador: "true"
   },
 
   normalUser: {
     nome: "Joao Coutinho",
-    email: `joao.coutinho${Date.now()}@email.com`,
-    password: "senha12345",
+    email: `joaocoutinhouser${Date.now()}@email.com`,
+    password: "user1234",
     administrador: "false"
   },
 }
