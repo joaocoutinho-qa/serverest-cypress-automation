@@ -13,13 +13,6 @@ module.exports = {
     administrador: "false"
   },
 
-  validProduct: {
-    nome: `TV Samsung ${Date.now()}`,
-    preco: 3700,
-    descricao: "Headset",
-    quantidade: 125
-  },
-
   adminUser: {
     nome: "Joao Coutinho",
     email: `joaocoutinhoadmin${Date.now()}@email.com`,
@@ -32,5 +25,12 @@ module.exports = {
     email: `joaocoutinhouser${Date.now()}@email.com`,
     password: "user1234",
     administrador: "false"
+  },
+
+  validProduct: {
+    nome: `Iphone 17 ${Date.now()}`,
+    preco: 12500,
+    descricao: "Iphone 2026",
+    quantidade: 300
   },
 }

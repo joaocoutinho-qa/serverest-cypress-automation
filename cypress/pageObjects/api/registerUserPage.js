@@ -3,7 +3,7 @@ class registerUser {
     sendAPIdata(payload){
         return cy.request({
                 method: 'POST',
-                url: `${cy.env('apiUrl')}/usuarios`, 
+                url: `${Cypress.env('apiUrl')}/usuarios`, 
                 failOnStatusCode: false,
                 body: payload,
         })

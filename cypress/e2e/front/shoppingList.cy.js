@@ -1,5 +1,5 @@
 /// <reference types="cypress" />
-import shoppingListPage from "../../pageObjects/shoppingListPage"
+import shoppingListPage from "../../pageObjects/front/shoppingListPage"
 
 beforeEach( function()  {
   cy.fixture('userData').as('data')
@@ -24,7 +24,7 @@ describe('Shopping List: UI', function () {
     shoppingListPage.validateAddedProduct(product)
   })
 
-  it('Remove a product from shopping list', function () {
+  it('Clear the products from shopping list', function () {
     const product = this.data.validProduct
     shoppingListPage.searchProductOnStore(product)
     shoppingListPage.addProductToShoppingList()

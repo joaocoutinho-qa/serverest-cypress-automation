@@ -1,6 +1,7 @@
-Setup:
+Project Setup:
 Define API links
 Define front-end link
+E2e file, and others
 
 Commands:
 Access the system via commands
@@ -23,9 +24,7 @@ Fixtures:
 
 data.json
 
-//Counter to make it random
-for x in 
-x = x + 1
+//use dateNow to make it random
 
 {
 validAdminCredentials:

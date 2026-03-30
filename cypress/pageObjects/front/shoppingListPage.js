@@ -1,4 +1,4 @@
-import { element } from '../support/locators'
+import { element } from '../../support/locators'
 
 class cartProducts {
 

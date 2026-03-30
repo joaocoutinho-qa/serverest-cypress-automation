@@ -27,6 +27,7 @@ Cypress.Commands.add('registerAdminUser', () => {
 })
 
 Cypress.Commands.add('adminUserLogin', () => {
+
      cy.env(['apiUrl']).then(({ apiUrl }) => {
          cy.fixture('userData').then((data) => {
              cy.request({
@@ -47,7 +48,7 @@ Cypress.Commands.add('adminUserLogin', () => {
 })
 
 Cypress.Commands.add('normalUserLogin', () => {
-        
+
     cy.visit('/')
         cy.fixture('userData').then((data) => {
             cy.get('[data-testid="email"]').clear().type(data.normalUser.email)
@@ -57,6 +58,7 @@ Cypress.Commands.add('normalUserLogin', () => {
 })
 
 Cypress.Commands.add('registerProduct', () => {
+    
      cy.env(['apiUrl']).then(({ apiUrl }) => {
          cy.then(() => {
             const token = Cypress.env('token')
@@ -72,7 +74,6 @@ Cypress.Commands.add('registerProduct', () => {
                     },
                     body: data.validProduct,
                 }).then((response) => {
-                    console.log('Request Headers:', { Authorization: token });
                     return response
                 })
             })

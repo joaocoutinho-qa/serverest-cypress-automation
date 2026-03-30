@@ -1,4 +1,4 @@
-import registerUserPage from "../../pageObjects/registerUserPage"
+import registerUserPage from "../../pageObjects/api/registerUserPage"
 
 beforeEach( function()  {
   cy.fixture('userData').as('data')
