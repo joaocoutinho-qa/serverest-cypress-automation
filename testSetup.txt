@@ -1,0 +1,93 @@
+Setup:
+Define API links
+Define front-end link
+
+Commands:
+Access the system via commands
+
+Tests:
+
+Front-end: cartItems.cy.js
+
+- Add item to shopping list
+- Delete an item from the shopping list
+- Clear items from the shopping list
+
+API: registerUser.cy.js
+
+- Register administrator user with valid credentials
+- Attempt to register administrator user with already registered email
+- Register administrator user without entering a name
+
+Fixtures:
+
+data.json
+
+//Counter to make it random
+for x in 
+x = x + 1
+
+{
+validAdminCredentials:
+{
+user: 'Joao Coutinho'
+email: 'joao.coutinho[X]@email.com'
+password: 'senha1234'
+adm: 'true'
+},
+
+invalidAdminCredentials:
+{
+user: ''
+email: 'joaocoutinhoadmin@email.com'
+password: 'senha1234'
+adm: 'true'
+},
+
+{
+normalUser:
+user: 'Joao Coutinho'
+email: 'joaocoutinhouser@email.com'
+password: 'user12345'
+},
+
+{
+adminUser:
+user: 'Joao Coutinho'
+email: 'joaocoutinhouseradmin@email.com'
+password: 'admin12345'
+}
+
+}
+
+pages:
+cartItemsPage.js
+
+- Access the system with a regular user
+- Select a product and add it to the cart
+- Validate if the product was added correctly
+- Validate the product information
+
+- Access the system with a regular user
+- Access the cart, validate that there are items
+- Select a product and delete it
+- Validate if the item was actually deleted
+
+- Access the system with a regular user
+- Access the cart, validate that there are items
+- Click the button and clear the items from the list Purchases
+- Validate if the list is actually empty
+
+registerUserPage.js
+
+- Access the serveRest API
+- Register an administrator user with valid credentials
+- Validate success message 200
+
+- Access the serveRest API
+- Register an administrator user with an already registered email address
+- Validate error message 401
+
+- Access the serveRest API
+- Register an administrator user without entering a name
+- Validate error message 401

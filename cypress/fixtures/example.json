@@ -1,0 +1,32 @@
+[
+  {
+    "validAdminCredentials": {
+      "user": "Joao Coutinho",
+      "email": "joao.coutinho[X]@email.com",
+      "password": "senha1234",
+      "adm": true
+    }
+  },
+  {
+    "invalidAdminCredentials": {
+      "user": "",
+      "email": "joaocoutinhoadmin@email.com",
+      "password": "senha1234",
+      "adm": true
+    }
+  },
+  {
+    "normalUser": {
+      "user": "Joao Coutinho",
+      "email": "joaocoutinhouser@email.com",
+      "password": "user12345"
+    }
+  },
+  {
+    "adminUser": {
+      "user": "Joao Coutinho",
+      "email": "joaocoutinhouseradmin@email.com",
+      "password": "admin12345"
+    }
+  }
+]
