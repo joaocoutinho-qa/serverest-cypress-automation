@@ -51,5 +51,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: automated-test-report
+          name: scheduled-test-report
           path: cypress/my-report/
