@@ -1,0 +1,64 @@
+name: Automated Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  project-setup:
+    runs-on: ubuntu-latest
+
+    steps:
+      # clone repository
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      # Configure node.js
+      - name: Configure node js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Install project dependencies
+      - name: Install dependencies
+        run: npm install
+
+  test-execution:
+    runs-on: ubuntu-latest
+    needs: project-setup
+
+    steps:
+      # clone repository 
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      # Configure node.js
+      - name: Configure node js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Install project dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Automation Test Execution
+      - name: Automation Test Execution
+        run: npm test
+
+  test-report:
+    runs-on: ubuntu-latest
+    needs: test-execution
+
+    steps:
+      # Upload Test Report
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: automated-test-report
+          path: |
+            cypress/screenshots/
+            cypress/videos/
