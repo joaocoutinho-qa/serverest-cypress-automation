@@ -44,11 +44,7 @@ jobs:
       # Automation Test Execution
       - name: Automation Test Execution
         run: npm test
-  test-report:
-    runs-on: ubuntu-latest
-    needs: test-execution
 
-    steps:
       # Upload Test Report
       - name: Upload Test Report
         if: always()
