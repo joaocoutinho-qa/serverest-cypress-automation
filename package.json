@@ -1,15 +1,25 @@
 {
   "name": "serverest-joao",
   "version": "1.0.0",
-  "description": "",
+  "description": "Test automation project for Serverest API and Frontend",
   "main": "index.js",
   "scripts": {
-    "test": "npm install mochawesome mochawesome-merge mochawesome-report-generator --save-dev && npx cypress run --reporter mochawesome --reporter-options reportDir=cypress/my-report,overwrite=false,html=true,json=true"
+    "test": "cypress run",
+    "test:ui": "cypress open",
+    "test:api": "cypress run --spec 'cypress/e2e/api/**/*.cy.js'",
+    "test:frontend": "cypress run --spec 'cypress/e2e/front/**/*.cy.js'",
+    "test:headed": "cypress run --headed",
+    "report": "npm run test && npx mochawesome-report-generator cypress/my-report/mochawesome.json"
   },
-    "keywords": [],
+  "keywords": ["cypress", "automation", "api", "ui"],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "cypress": "^15.13.0"
+    "cypress": "^15.13.0",
+    "@faker-js/faker": "^8.4.1",
+    "dotenv": "^16.3.1",
+    "mochawesome": "^7.1.3",
+    "mochawesome-merge": "^4.3.0",
+    "mochawesome-report-generator": "^6.2.0"
   }
 }

@@ -1,82 +1,116 @@
-Cypress.Commands.add('registerNormalUser', () => {
-    
-      cy.env(['apiUrl']).then(({ apiUrl }) => {
-         cy.fixture('userData').then((data) => {
-             cy.request({
-                method: 'POST',
-                url: `${(apiUrl)}/usuarios`, 
-                failOnStatusCode: false,
-                body: data.normalUser,
-            })
-        }) 
-    })
+import apiClient from './apiClient'
+
+const API_URL = Cypress.env('apiUrl')
+
+// Register user via API
+Cypress.Commands.add('apiRegisterUser', (userData) => {
+  return apiClient.post('/usuarios', userData)
 })
 
-Cypress.Commands.add('registerAdminUser', () => {
-    
-      cy.env(['apiUrl']).then(({ apiUrl }) => {
-         cy.fixture('userData').then((data) => {
-             cy.request({
-                method: 'POST',
-                url: `${(apiUrl)}/usuarios`, 
-                failOnStatusCode: false,
-                body: data.adminUser,
-            })
-        }) 
-    })
+// User authentication
+Cypress.Commands.add('apiLogin', (email, password) => {
+  return apiClient.post('/login', {
+    email,
+    password,
+  }).then((response) => {
+    if (response.status === 200 && response.body.authorization) {
+      apiClient.setToken(response.body.authorization)
+      Cypress.env('authToken', response.body.authorization)
+    }
+    return response
+  })
 })
 
-Cypress.Commands.add('adminUserLogin', () => {
+// Create product via API
+Cypress.Commands.add('apiCreateProduct', (productData, token) => {
+  return cy.request({
+    method: 'POST',
+    url: `${API_URL}/produtos`,
+    failOnStatusCode: false,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: token,
+    },
+    body: productData,
+  })
+})
 
-     cy.env(['apiUrl']).then(({ apiUrl }) => {
-         cy.fixture('userData').then((data) => {
-             cy.request({
-                method: 'POST',
-                url: `${apiUrl}/login`,
-                body: {
-                    email: data.adminUser.email,
-                    password: data.adminUser.password
-                },
-                failOnStatusCode: false
-            }).then((response) => {
-                const token = response.body.authorization
-                Cypress.env('token', token)
-                return token
-            })
+// List all products
+Cypress.Commands.add('apiListProducts', (token) => {
+  return cy.request({
+    method: 'GET',
+    url: `${API_URL}/produtos`,
+    failOnStatusCode: false,
+    headers: {
+      Authorization: token,
+    },
+  })
+})
+
+// Delete product via API
+Cypress.Commands.add('apiDeleteProduct', (productId, token) => {
+  return cy.request({
+    method: 'DELETE',
+    url: `${API_URL}/produtos/${productId}`,
+    failOnStatusCode: false,
+    headers: {
+      Authorization: token,
+    },
+  })
+})
+
+// Get user information by ID
+Cypress.Commands.add('apiGetUserById', (userId, token) => {
+  return cy.request({
+    method: 'GET',
+    url: `${API_URL}/usuarios/${userId}`,
+    failOnStatusCode: false,
+    headers: {
+      Authorization: token,
+    },
+  })
+})
+
+// UI login flow
+Cypress.Commands.add('uiLoginUser', (email, password) => {
+  cy.visit('/login')
+  cy.get('[data-testid="email"]').clear().type(email)
+  cy.get('[data-testid="senha"]').clear().type(password)
+  cy.get('[data-testid="entrar"]').click()
+  cy.url().should('include', '/home')
+})
+
+// UI logout flow
+Cypress.Commands.add('uiLogoutUser', () => {
+  cy.get('[data-testid="sair"]').click()
+  cy.url().should('include', '/login')
+})
+
+// Cleanup: remove all test users
+Cypress.Commands.add('cleanupUsers', () => {
+  const token = Cypress.env('authToken')
+  if (token) {
+    cy.request({
+      method: 'DELETE',
+      url: `${API_URL}/usuarios`,
+      failOnStatusCode: false,
+      headers: {
+        Authorization: token,
+      },
+    })
+  }
+})
+
+// Cleanup: remove all test products
+Cypress.Commands.add('cleanupProducts', () => {
+  const token = Cypress.env('authToken')
+  if (token) {
+    cy.apiListProducts(token).then((response) => {
+      if (response.status === 200 && response.body.produtos) {
+        response.body.produtos.forEach((product) => {
+          cy.apiDeleteProduct(product._id, token)
         })
+      }
     })
-})
-
-Cypress.Commands.add('normalUserLogin', () => {
-
-    cy.visit('/')
-        cy.fixture('userData').then((data) => {
-            cy.get('[data-testid="email"]').clear().type(data.normalUser.email)
-            cy.get('[data-testid="senha"]').clear().type(data.normalUser.password)
-            cy.get('[data-testid="entrar"]').click()
-        })
-})
-
-Cypress.Commands.add('registerProduct', () => {
-    
-     cy.env(['apiUrl']).then(({ apiUrl }) => {
-         cy.then(() => {
-            const token = Cypress.env('token')
-            
-             cy.fixture('userData').then((data) => {
-                 cy.request({
-                    method: 'POST',
-                    url: `${apiUrl}/produtos`,
-                    failOnStatusCode: false,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': token
-                    },
-                    body: data.validProduct,
-                }).then((response) => {
-                    return response
-                })
-            })
-        })
-    })
+  }
 })

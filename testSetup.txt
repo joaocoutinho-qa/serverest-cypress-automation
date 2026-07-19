@@ -1,53 +1,51 @@
-Project Setup:
-Define API links
-Define front-end link
-E2e file, and others
+TEST AUTOMATION SETUP - SERVEREST
+=================================
 
-Commands:
-Access the system via commands
+SETUP COMPLETED
+- API URL: https://serverest.dev
+- Frontend URL: https://front.serverest.dev
+- Framework: Cypress 15.13.0
+- Data generation: Faker.js
 
-Tests:
+API TESTS (5 scenarios)
+- Register valid admin user and validate persistence
+- Attempt to register user with duplicate email
+- Register user and validate authentication flow
+- Attempt to register user with missing required field
+- Update user data after registration and validate changes
 
-Front-end: cartItems.cy.js
+FRONTEND TESTS (5 scenarios)
+- Search for product and validate search results
+- Add single product to shopping cart and validate persistence
+- Add multiple products and clear entire cart
+- Remove individual product from cart
+- Update product quantity in cart
 
-- Add item to shopping list
-- Delete an item from the shopping list
-- Clear items from the shopping list
+FIXTURES
+- userData.js: Dynamic test data (admin user, normal user, invalid users)
+- productsData.js: Mock product data for frontend tests
 
-API: registerUser.cy.js
+CUSTOM COMMANDS (10)
+- apiRegisterUser(), apiLogin(), apiCreateProduct()
+- apiListProducts(), apiDeleteProduct(), apiGetUserById()
+- uiLoginUser(), uiLogoutUser()
+- cleanupUsers(), cleanupProducts()
 
-- Register administrator user with valid credentials
-- Attempt to register administrator user with already registered email
-- Register administrator user without entering a name
+DESIGN PATTERNS
+- ApiClient: Centralized HTTP client
+- BasePageObject: Reusable base class
+- PageObject: Separation of concerns
+- Singleton: Unique instances
 
-Fixtures:
+ENVIRONMENT VARIABLES (.env)
+- SERVEREST_API_URL=https://serverest.dev
+- SERVEREST_FRONT_URL=https://front.serverest.dev
+- SERVEREST_API_TIMEOUT=10000
+- SERVEREST_MAX_RETRIES=3
+- NODE_ENV=test
 
-data.json
-
-//use dateNow to make it random
-
-{
-validAdminCredentials:
-{
-user: 'Joao Coutinho'
-email: 'joao.coutinho[X]@email.com'
-password: 'senha1234'
-adm: 'true'
-},
-
-invalidAdminCredentials:
-{
-user: ''
-email: 'joaocoutinhoadmin@email.com'
-password: 'senha1234'
-adm: 'true'
-},
-
-{
-normalUser:
-user: 'Joao Coutinho'
-email: 'joaocoutinhouser@email.com'
-password: 'user12345'
+READY FOR TESTING
+Run: npm test
 },
 
 {

@@ -1,46 +1,105 @@
-import { element } from '../../support/locators'
+import BasePageObject from '../basePageObject'
 
-class cartProducts {
-
-    searchProductOnStore(product){
-        cy.get(element.searchInput).type(product.nome)
-        cy.get(element.searchButton).click()
+class ShoppingListPage extends BasePageObject {
+  constructor() {
+    super()
+    this.selectors = {
+      searchInput: '[data-testid="pesquisar"]',
+      searchButton: '[data-testid="botaoPesquisar"]',
+      productCard: '[data-testid="product-card"]',
+      productName: '[data-testid="product-name"]',
+      productPrice: '[data-testid="product-price"]',
+      addToCartButton: '[data-testid="adicionarNaLista"]',
+      cartProductName: '[data-testid="shopping-cart-product-name"]',
+      cartProductQuantity: '[data-testid="shopping-cart-product-quantity"]',
+      cartProductPrice: '[data-testid="shopping-cart-product-price"]',
+      clearCartButton: '[data-testid="limparLista"]',
+      emptyMessage: '[data-testid="shopping-cart-empty-message"]',
+      cartIcon: '[data-testid="cart-icon"]',
+      removeButton: '[data-testid="remove-item"]',
+      quantityIncrement: '[data-testid="quantity-increment"]',
+      quantityDecrement: '[data-testid="quantity-decrement"]',
     }
-    
-    validateSearchedProduct(product){
-        cy.url().should('include', '/home')
-        cy.get(element.productCard).should('have.length', 1)
+  }
 
-        cy.get(element.productCard).first().within(() => {
-            cy.get(element.productName).should('include.text', product.nome)
-            cy.get(element.productPrice).should('include.text', `${product.preco}`)
-        })
-    }
+  setupInterceptors() {
+    return cy.fixture('productsData').then((data) => {
+      cy.intercept('GET', '**/produtos*', { body: data.produtos }).as('getProducts')
+    }).then(() => {
+      cy.intercept('GET', '**/minhaListaDeProdutos*').as('getCart')
+      cy.intercept('POST', '**/carrinhos/**').as('addToCart')
+      cy.intercept('DELETE', '**/carrinhos/**').as('removeFromCart')
+    })
+  }
 
-    addProductToShoppingList(){
-        cy.get(element.addProductToCart).click()
-    }
+  searchProduct(productName) {
+    cy.get(this.selectors.searchInput).clear().type(productName)
+    cy.get(this.selectors.searchButton).click()
+    cy.wait('@getProducts')
+  }
 
-    validateAddedProduct(product){
-        cy.url().should('include', '/minhaListaDeProdutos')
-        cy.get(element.productCard).should('have.length', 1)
+  validateSearchResults(productName, expectedCount) {
+    cy.get(this.selectors.productCard).should('have.length', expectedCount)
+    cy.get(this.selectors.productCard).first().within(() => {
+      cy.get(this.selectors.productName).should('contain', productName)
+    })
+  }
 
-        cy.get(element.productCard).first().within(() => {
-            cy.get(element.productNameCart).should('include.text', product.nome)
-            cy.get('p').should('include.text', `${product.preco}`)
-            cy.get(element.productQuantity).should('include.text', '1')
-        })
-    }
-    clearProductsFromShoppingList(){
-        cy.get(element.clearProductList).click()
-    }
+  addProductToCart() {
+    cy.get(this.selectors.addToCartButton).first().click()
+    cy.wait('@addToCart')
+  }
 
-    validateProductsCleared (){
-        cy.url().should('include', '/minhaListaDeProdutos')
+  validateProductInCart(productName, price) {
+    cy.url().should('include', '/minhaListaDeProdutos')
+    cy.get(this.selectors.cartProductName)
+      .first()
+      .should('contain', productName)
+    cy.get(this.selectors.cartProductPrice)
+      .first()
+      .should('contain', price)
+  }
 
-        cy.get(element.emptyListMessage)
-            .should('be.visible')
-            .and('include.text', 'Seu carrinho está vazio')
-    }
+  getCartItemCount() {
+    return cy.get(this.selectors.cartProductName).its('length')
+  }
+
+  clearCart() {
+    cy.get(this.selectors.clearCartButton).click()
+    cy.wait('@removeFromCart')
+  }
+
+  validateEmptyCart() {
+    cy.url().should('include', '/minhaListaDeProdutos')
+    cy.get(this.selectors.emptyMessage)
+      .should('be.visible')
+      .and('contain', 'Seu carrinho está vazio')
+    cy.get(this.selectors.cartProductName).should('not.exist')
+  }
+
+  removeProductFromCart(index = 0) {
+    cy.get(this.selectors.removeButton).eq(index).click()
+    cy.wait('@removeFromCart')
+  }
+
+  incrementProductQuantity(index = 0) {
+    cy.get(this.selectors.quantityIncrement).eq(index).click()
+  }
+
+  decrementProductQuantity(index = 0) {
+    cy.get(this.selectors.quantityDecrement).eq(index).click()
+  }
+
+  validateProductQuantity(index, expectedQuantity) {
+    cy.get(this.selectors.cartProductQuantity)
+      .eq(index)
+      .should('contain', expectedQuantity)
+  }
+
+  navigateToCart() {
+    cy.get(this.selectors.cartIcon).click()
+    cy.wait('@getCart')
+  }
 }
-export default new cartProducts()
+
+export default new ShoppingListPage()
