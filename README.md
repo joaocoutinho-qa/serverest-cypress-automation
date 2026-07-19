@@ -26,7 +26,7 @@ cypress/
 │   ├── basePageObject.js               (Base class)
 │   └── exportPageObjects.js            (PageObjects registry)
 ├── support/
-│   ├── clients/apiClient.js            (HTTP client)
+│   ├── apiClient.js                    (HTTP client)
 │   ├── commands.js                     (10 custom commands)
 │   └── e2e.js                          (Global hooks)
 └── fixtures/
