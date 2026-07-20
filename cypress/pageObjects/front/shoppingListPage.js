@@ -1,4 +1,5 @@
 import BasePageObject from '../basePageObject'
+import productsData from '../../fixtures/productsData'
 
 class ShoppingListPage extends BasePageObject {
   constructor() {
@@ -23,13 +24,27 @@ class ShoppingListPage extends BasePageObject {
   }
 
   setupInterceptors() {
-    return cy.fixture('productsData').then((data) => {
-      cy.intercept('GET', '**/produtos*', { body: data.produtos }).as('getProducts')
-    }).then(() => {
-      cy.intercept('GET', '**/minhaListaDeProdutos*').as('getCart')
-      cy.intercept('POST', '**/carrinhos/**').as('addToCart')
-      cy.intercept('DELETE', '**/carrinhos/**').as('removeFromCart')
-    })
+    cy.intercept('GET', '**/produtos*', (req) => {
+      const createdProducts = Cypress.env('createdProducts') || productsData.produtos
+      req.reply({
+        statusCode: 200,
+        body: {
+          produtos: createdProducts,
+        },
+      })
+    }).as('getProducts')
+    cy.intercept('GET', '**/minhaListaDeProdutos*', {
+      statusCode: 200,
+      body: { produtos: [] },
+    }).as('getCart')
+    cy.intercept('POST', '**/carrinhos/**', {
+      statusCode: 200,
+      body: { message: 'ok' },
+    }).as('addToCart')
+    cy.intercept('DELETE', '**/carrinhos/**', {
+      statusCode: 200,
+      body: { message: 'ok' },
+    }).as('removeFromCart')
   }
 
   searchProduct(productName) {

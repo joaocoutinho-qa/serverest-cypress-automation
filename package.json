@@ -11,12 +11,17 @@
     "test:headed": "cypress run --headed",
     "report": "npm run test && npx mochawesome-report-generator cypress/my-report/mochawesome.json"
   },
-  "keywords": ["cypress", "automation", "api", "ui"],
+  "keywords": [
+    "cypress",
+    "automation",
+    "api",
+    "ui"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "cypress": "^15.13.0",
     "@faker-js/faker": "^8.4.1",
+    "cypress": "^15.18.1",
     "dotenv": "^16.3.1",
     "mochawesome": "^7.1.3",
     "mochawesome-merge": "^4.3.0",

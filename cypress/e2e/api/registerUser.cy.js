@@ -1,17 +1,10 @@
 import { pageObjects } from '../../pageObjects/exportPageObjects'
-
+import userData from '../../fixtures/userData'
 const { UserAPI } = pageObjects
 
 describe('User Registration API Tests', () => {
-  let userData
   let userId
   let authToken
-
-  beforeEach(() => {
-    cy.fixture('userData').then((fixture) => {
-      userData = fixture
-    })
-  })
 
   afterEach(() => {
     
@@ -24,12 +17,7 @@ describe('User Registration API Tests', () => {
   })
 
   it('Register valid admin user and validate persistence', () => {
-    const adminData = {
-      nome: 'Admin Test User',
-      email: `admin${Date.now()}@test.com`,
-      password: 'Admin@1234',
-      administrador: 'true',
-    }
+    const adminData = userData.adminUser
 
     UserAPI.registerUser(adminData).then((response) => {
       UserAPI.validateResponseStatus(response, 201)
@@ -40,10 +28,10 @@ describe('User Registration API Tests', () => {
         UserAPI.validateResponseStatus(loginResponse, 200)
         authToken = UserAPI.validateLoginToken(loginResponse)
 
-        UserAPI.validateUserPersistence(userId, authToken).then((userData) => {
-          expect(userData.nome).to.equal(adminData.nome)
-          expect(userData.email).to.equal(adminData.email)
-          expect(userData.administrador).to.equal(true)
+        UserAPI.validateUserPersistence(userId, authToken).then((responseUser) => {
+          expect(responseUser.nome).to.equal(adminData.nome)
+          expect(responseUser.email).to.equal(adminData.email)
+          expect(responseUser.administrador).to.equal(true)
         })
       })
     })
@@ -92,11 +80,7 @@ describe('User Registration API Tests', () => {
   })
 
   it('Attempt to register user with missing required field', () => {
-    const incompleteUser = {
-      nome: 'Incomplete User',
-      password: 'Senha@1234',
-      administrador: 'false',
-    }
+    const incompleteUser = userData.invalidUserNoEmail
 
     UserAPI.registerUser(incompleteUser).then((response) => {
       UserAPI.validateResponseStatus(response, 400)

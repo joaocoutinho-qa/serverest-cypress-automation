@@ -3,8 +3,8 @@ require('dotenv').config()
 
 module.exports = defineConfig({
   e2e: {
-    baseUrl: process.env.SERVEREST_FRONT_URL || 'https://front.serverest.dev',
-    
+    baseUrl: 'https://front.serverest.dev',
+
     env: {
       apiUrl: process.env.SERVEREST_API_URL || 'https://serverest.dev',
       apiTimeout: parseInt(process.env.SERVEREST_API_TIMEOUT) || 10000,

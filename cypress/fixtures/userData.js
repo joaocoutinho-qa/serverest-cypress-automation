@@ -1,4 +1,4 @@
-module.exports = {
+const userData = {
   adminUser: {
     nome: "Admin Test",
     email: `admin.test${Date.now()}@email.com`,
@@ -34,3 +34,5 @@ module.exports = {
     administrador: "false"
   }
 }
+
+export default userData
