@@ -13,24 +13,10 @@ const userData = {
     administrador: "false"
   },
 
-  invalidUserNoName: {
-    nome: "",
-    email: `invalid${Date.now()}@email.com`,
-    password: "Senha@1234",
-    administrador: "false"
-  },
-
   invalidUserNoEmail: {
     nome: "Test User",
     email: "",
     password: `invalid${Date.now()}@email.com`,
-    administrador: "false"
-  },
-
-  invalidUserNoPassword: {
-    nome: "Test User",
-    email: `test${Date.now()}@email.com`,
-    password: "",
     administrador: "false"
   }
 }

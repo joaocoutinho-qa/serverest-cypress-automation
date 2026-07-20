@@ -1,50 +1,44 @@
 # Serverest Test Automation
 
-Comprehensive test automation suite for Serverest using Cypress with enterprise-grade patterns, independent tests, robust API validations, and frontend automation.
+Test automation suite for the Serverest project using Cypress.
 
-## Features
+## Overview
 
-- **08 Independent Tests** (4 API + 4 Frontend) with automatic teardown
-- **3 Design Patterns**: ApiClient, PageObject, Singleton
-- **Dynamic Data Generation** with Faker.js
-- **API Testing** with status, body, and persistence validations
-- **Frontend Automation** with cy.intercept() and standardized data-testid selectors
-- **Security**: Environment variables for URLs and configurations
-- **Zero Code Duplication**: Reusable methods and commands
-- **Production-Ready**: Clean code following best practices
+This repository contains consolidated API and frontend tests, with dynamic data and project patterns designed for clarity, reuse, and isolation between test cases.
 
 ## Project Structure
 
-```
 cypress/
 ├── e2e/
-│   ├── api/registerUser.cy.js          (API tests)
-│   └── front/shoppingList.cy.js        (Frontend tests)
+│   ├── api/registerUser.cy.js          # API tests for user registration and update
+│   └── front/shoppingList.cy.js        # Frontend tests for the shopping list
+├── fixtures/
+│   ├── productsData.js                # Dynamic product data generated with Faker
+│   └── userData.js                    # User data with unique emails per run
 ├── pageObjects/
-│   ├── api/registerUserPage.js         (API methods)
-│   ├── front/shoppingListPage.js       (UI methods)
-│   ├── basePageObject.js               (removed)
-│   └── exportPages.js                  (Canonical PageObjects registry)
-├── support/
-│   ├── apiClient.js                    (HTTP client)
-│   ├── commands.js                     (Ccustom commands)
+│   ├── api/registerUserPage.js        # API methods and user validation helpers
+│   └── front/shoppingListPage.js      # UI methods and selectors for shopping list flows
+└── support/
+    ├── apiClient.js                   # Centralized HTTP client for API calls
+    ├── commands.js                    # Custom Cypress commands
+    └── exportPages.js                 # Exports PageObject instances
 
-### Run Tests
+## Available Commands
 
 ```bash
-npm test              # All tests
-npm run test:api      # API tests
-npm run test:frontend # Frontend tests
-npm run test:ui       # Interactive mode
-npm run test:headed   # With browser visible
-npm run report        # Generate HTML report
+npm test             # Run all tests headless and generate mochawesome report
+npm run cypress:run  # Run Cypress headless with mochawesome reporter
+npm run test:ui      # Open Cypress Test Runner
+npm run clean:report # Remove the report directory
+npm run report:merge # Merge mochawesome JSON reports
+npm run report:gen   # Generate HTML report from merged JSON
 ```
 
 ## Environment Configuration
 
-Create/update `.env` file:
+Create a `.env` file in the project root with the following variables:
 
-```
+```env
 SERVEREST_API_URL=https://serverest.dev
 SERVEREST_FRONT_URL=https://front.serverest.dev
 SERVEREST_API_TIMEOUT=10000
@@ -52,54 +46,55 @@ SERVEREST_MAX_RETRIES=3
 NODE_ENV=test
 ```
 
-## Tests Implemented
+The `cypress.config.js` file loads this `.env` using `dotenv` and exposes `apiUrl`, `apiTimeout`, and `maxRetries` for the test configuration.
 
-### API Tests (4 scenarios)
-1. Register valid admin user and validate persistence
-2. Attempt to register user with duplicate email
-3. Attempt to register user with missing required field
-4. Update user data after registration and validate changes
+## Implemented Tests
 
-### Frontend Tests (4 scenarios)
-1. Search for product and validate search results
-2. Add single product to shopping cart and validate persistence
-3. Add multiple products and clear entire cart
-4. Update product quantity in cart and validate price
+### API
+- Register a valid user and validate persistence
+- Attempt to register a user with a duplicate email
+- Attempt to register a user with a missing email field
+- Update user data after registration and validate the change
 
-## Design Patterns
+### Frontend
+- Search for a product and validate search results
+- Add a single product to the shopping list and validate persistence
+- Add multiple products and clear the shopping list
+- Update a product quantity in the cart and validate the price
 
-1. **ApiClient Pattern**: Centralized HTTP client with token management
-2. **DataFactory Pattern**: Dynamic data generation with Faker.js
-3. **PageObject Pattern**: Separation between test logic and UI/API
-4. **Singleton Pattern**: Unique instances for efficient state management
+## Design Patterns and Best Practices
 
-## Custom Commands
+- `ApiClient`: centralized HTTP client in `cypress/support/apiClient.js`
+- `Page Object`: `cypress/pageObjects/` structure separates test logic from application interaction
+- `Custom Commands`: encapsulate common flows in `cypress/support/commands.js`
+- `Dynamic Data`: `cypress/fixtures/productsData.js` generates products with Faker to avoid collisions and state dependency
+- `Isolation`: each test creates its own data and performs cleanup via `cleanupTestData()`
 
-- `apiLoginToken(email, password)` - Authenticate user and return token
-- `apiRegisterUser(userData)` - Register user via API
-- `apiCreateProduct(productData, token)` - Create product
-- `apiDeleteProduct(productId, token)` - Delete product
-- `createAuthenticatedUser(userData)` - Register and login a user (stores token/id in Cypress.env)
-- `createProductsFromFixture()` - Create products from `cypress/fixtures/productsData.js` using admin token
-- `uiLoginUser(email, password)` - UI login flow
-- `uiLogoutUser()` - UI logout flow
-- `cleanupTestData()` - Remove created products and users from the current test run
+## Important Custom Commands
 
-## Dependencies
+- `cy.apiRegisterUser(userData)`
+- `cy.apiLoginToken(email, password)`
+- `cy.createAuthenticatedUser(userData)`
+- `cy.apiCreateProduct(productData, token)`
+- `cy.createProductsFromFixture()`
+- `cy.cleanupTestData()`
+- `cy.uiLoginUser(email, password)`
 
-- **cypress**: ^15.13.0 - Test framework
-- **@faker-js/faker**: ^8.4.1 - Dynamic data generation
-- **dotenv**: ^16.3.1 - Environment variables
-- **mochawesome**: ^7.1.3 - HTML reports
+## Main Dependencies
 
-## License
+- cypress ^15.18.1
+- @faker-js/faker ^8.4.1
+- dotenv ^16.3.1
+- mochawesome ^7.1.3
+- mochawesome-merge ^4.3.0
+- mochawesome-report-generator ^6.2.0
+- rimraf ^6.1.3
 
-ISC
+## Report Output Structure
 
----
+Reports are generated in `cypress/report/` as JSON and HTML.
 
-## Technologies Used
+## Notes
 
-* **Cypress**: Core automation framework.
-* **JavaScript**: Programming language.
-* **Page Objects Model (POM)**: Design pattern for better code structure.
+- The project does not include `test:api` or `test:frontend` scripts in `package.json`.
+- `npm test` runs the full suite and generates the final report.
