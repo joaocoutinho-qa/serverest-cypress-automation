@@ -37,10 +37,16 @@ class RegisterUserPage {
     })
   }
 
-  validateResponseSchema(response) {
-    expect(response.body).to.have.property('message').to.be.a('string')
-    return response
-  }
+validateSuccessSchema(response) {
+  expect(response.body).to.have.property('message').to.be.a('string')
+  expect(response.body).to.have.property('_id').to.be.a('string')
+  return response
+}
+
+validateErrorSchema(response, missingField) {
+  expect(response.body).to.have.property(missingField).to.be.a('string')
+  return response
+}
 
   loginUser(email, password) {
     return apiClient.post('/login', { email, password })

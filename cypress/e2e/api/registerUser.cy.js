@@ -22,7 +22,7 @@ describe('User Registration API Tests', () => {
     UserAPI.registerUser(adminData).then((response) => {
       UserAPI.validateResponseStatus(response, 201)
       userId = UserAPI.validateResponseBodyHasId(response)
-      UserAPI.validateResponseSchema(response)
+      UserAPI.validateSuccessSchema(response)
 
       UserAPI.loginUser(adminData.email, adminData.password).then((loginResponse) => {
         UserAPI.validateResponseStatus(loginResponse, 200)
@@ -31,7 +31,7 @@ describe('User Registration API Tests', () => {
         UserAPI.validateUserPersistence(userId, authToken).then((responseUser) => {
           expect(responseUser.nome).to.equal(adminData.nome)
           expect(responseUser.email).to.equal(adminData.email)
-          expect(responseUser.administrador).to.equal(true)
+          expect(responseUser.administrador).to.equal('true')
         })
       })
     })
@@ -79,13 +79,13 @@ describe('User Registration API Tests', () => {
     })
   })
 
-  it('Attempt to register user with missing required field', () => {
+  it('Attempt to register user with missing email field', () => {
     const incompleteUser = userData.invalidUserNoEmail
 
     UserAPI.registerUser(incompleteUser).then((response) => {
       UserAPI.validateResponseStatus(response, 400)
-      UserAPI.validateResponseSchema(response)
-      expect(response.body.message).to.exist
+      UserAPI.validateErrorSchema(response, 'email')
+      expect(response.body.email).to.exist
     })
   })
 

@@ -34,18 +34,6 @@ class ShoppingListPage extends BasePageObject {
         },
       })
     }).as('getProducts')
-    cy.intercept('GET', '**/minhaListaDeProdutos*', {
-      statusCode: 200,
-      body: { produtos: [] },
-    }).as('getCart')
-    cy.intercept('POST', '**/carrinhos/**', {
-      statusCode: 200,
-      body: { message: 'ok' },
-    }).as('addToCart')
-    cy.intercept('DELETE', '**/carrinhos/**', {
-      statusCode: 200,
-      body: { message: 'ok' },
-    }).as('removeFromCart')
   }
 
   searchProduct(productName) {

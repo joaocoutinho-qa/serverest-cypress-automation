@@ -20,7 +20,6 @@ describe('Shopping List Frontend Tests', () => {
   it('Search for product and validate search results', () => {
     cy.get('@products').then((products) => {
       const createdProduct = products[0]
-      console.log(createdProduct)
       shoppingListPage.searchProduct(createdProduct.name)
       shoppingListPage.validateSearchResults(createdProduct.name)
     })
@@ -39,9 +38,9 @@ describe('Shopping List Frontend Tests', () => {
   it('Add multiple products and clear entire cart', () => {
     cy.get('@products').then((products) => {
       const product1 = products[0]
-      const product2 = products[1]
-
-      ;[product1, product2].forEach((product) => {
+      const product2 = products[1];
+      
+      [product1, product2].forEach((product) => {
         shoppingListPage.navigateToHome()
         shoppingListPage.searchProduct(product.name)
         shoppingListPage.addProductToShoppingList()
@@ -53,7 +52,7 @@ describe('Shopping List Frontend Tests', () => {
     })
   })
 
-  it('Update product quantity in cart', () => {
+  it('Update product quantity in cart and validate price', () => {
     cy.get('@products').then((products) => {
       const createdProduct = products[0]
       shoppingListPage.searchProduct(createdProduct.name)
