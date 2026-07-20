@@ -5,3 +5,4 @@ cypress/downloads
 .nyc_output
 coverage
 .cache
+.env
