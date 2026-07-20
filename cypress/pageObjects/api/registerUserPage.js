@@ -2,11 +2,13 @@ import apiClient from '../../support/apiClient'
 
 class RegisterUserPage {
   translateUserPayload(userData) {
+    const isAdmin = userData.administrador === true || userData.administrador === 'true'
+
     return {
-      nome: userData.name || userData.nome,
+      nome: userData.nome,
       email: userData.email,
       password: userData.password,
-      administrador: userData.isAdmin === true || userData.administrador === true || userData.administrador === 'true' ? 'true' : 'false',
+      administrador: isAdmin ? 'true' : 'false',
     }
   }
 
@@ -41,10 +43,7 @@ class RegisterUserPage {
   }
 
   validateUserPersistence(userId, token) {
-    return cy.request({
-      method: 'GET',
-      url: `${Cypress.env('apiUrl')}/usuarios/${userId}`,
-      failOnStatusCode: false,
+    return apiClient.get(`/usuarios/${userId}`, {
       headers: {
         Authorization: token,
       },
@@ -77,10 +76,7 @@ validateErrorSchema(response, missingField) {
   }
 
   getUser(userId, token) {
-    return cy.request({
-      method: 'GET',
-      url: `${Cypress.env('apiUrl')}/usuarios/${userId}`,
-      failOnStatusCode: false,
+    return apiClient.get(`/usuarios/${userId}`, {
       headers: {
         Authorization: token,
       },
@@ -88,11 +84,7 @@ validateErrorSchema(response, missingField) {
   }
 
   updateUser(userId, userData, token) {
-    return cy.request({
-      method: 'PUT',
-      url: `${Cypress.env('apiUrl')}/usuarios/${userId}`,
-      failOnStatusCode: false,
-      body: this.translateUserPayload(userData),
+    return apiClient.put(`/usuarios/${userId}`, this.translateUserPayload(userData), {
       headers: {
         Authorization: token,
       },
@@ -100,10 +92,7 @@ validateErrorSchema(response, missingField) {
   }
 
   deleteUser(userId, token) {
-    return cy.request({
-      method: 'DELETE',
-      url: `${Cypress.env('apiUrl')}/usuarios/${userId}`,
-      failOnStatusCode: false,
+    return apiClient.delete(`/usuarios/${userId}`, {
       headers: {
         Authorization: token,
       },

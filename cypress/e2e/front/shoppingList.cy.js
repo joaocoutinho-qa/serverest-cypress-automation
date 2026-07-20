@@ -16,20 +16,19 @@ describe('Shopping List Frontend Tests', () => {
   })
 
   it('Search for product and validate search results', () => {
-    Cypress.env('createdProducts')
     cy.get('@products').then((products) => {
       const createdProduct = products[0]
-      shoppingListPage.searchProduct(createdProduct.name)
-      shoppingListPage.validateSearchResults(createdProduct.name)
+      shoppingListPage.searchProduct(createdProduct.nome)
+      shoppingListPage.validateSearchResults(createdProduct.nome)
     })
   })
 
   it('Add single product to shopping list and validate persistence', () => {
     cy.get('@products').then((products) => {
       const createdProduct = products[0]
-      shoppingListPage.searchProduct(createdProduct.name)
+      shoppingListPage.searchProduct(createdProduct.nome)
       shoppingListPage.addProductToShoppingList()
-      shoppingListPage.validateProductInShoppingList(createdProduct.name, createdProduct.price)
+      shoppingListPage.validateProductInShoppingList(createdProduct.nome, createdProduct.preco)
       shoppingListPage.getCartItemCount().should('equal', 1)
     })
   })
@@ -41,7 +40,7 @@ describe('Shopping List Frontend Tests', () => {
       
       [product1, product2].forEach((product) => {
         shoppingListPage.navigateToHome()
-        shoppingListPage.searchProduct(product.name)
+        shoppingListPage.searchProduct(product.nome)
         shoppingListPage.addProductToShoppingList()
       })
 
@@ -62,7 +61,7 @@ describe('Shopping List Frontend Tests', () => {
 
       shoppingListPage.incrementProductQuantity(0)
       shoppingListPage.validateProductQuantity(0, '2')
-      shoppingListPage.validateProductPrice(createdProduct.price*2)
+      shoppingListPage.validateProductPrice(createdProduct.preco * 2)
     })
   })
 })

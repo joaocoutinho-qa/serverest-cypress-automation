@@ -1,7 +1,6 @@
 
 import apiClient from './apiClient'
 
-const API_URL = Cypress.env('apiUrl')
 Cypress.Commands.add('apiRegisterUser', (userData) => apiClient.post('/usuarios', userData))
 
 // Perform API login and return auth token
@@ -35,17 +34,18 @@ Cypress.Commands.add('createAuthenticatedUser', (userData) =>
 
 //Create product via API
 Cypress.Commands.add('apiCreateProduct', (productData, token) =>
-  cy.request({
-    method: 'POST',
-    url: `${API_URL}/produtos`,
-    failOnStatusCode: false,
-    headers: { 'Content-Type': 'application/json', Authorization: token },
-    body: productData,
+  apiClient.post('/produtos', productData, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: token,
+    },
   })
 )
 
 Cypress.Commands.add('apiDeleteProduct', (productId, token) =>
-  cy.request({ method: 'DELETE', url: `${API_URL}/produtos/${productId}`, failOnStatusCode: false, headers: { Authorization: token } })
+  apiClient.delete(`/produtos/${productId}`, {
+    headers: { Authorization: token },
+  })
 )
 
 // Create single product and normalize fields
@@ -56,14 +56,10 @@ Cypress.Commands.add('createProduct', (productData, token = Cypress.env('adminTo
     const created = {
       _id: apiId,
       id: apiId,
-      nome: productData.nome || productData.name,
-      name: productData.name || productData.nome,
-      preco: productData.preco || productData.price,
-      price: productData.price || productData.preco,
-      descricao: productData.descricao || productData.description,
-      description: productData.description || productData.descricao,
-      quantidade: productData.quantidade || productData.quantity,
-      quantity: productData.quantity || productData.quantidade,
+      nome: productData.nome,
+      preco: productData.preco,
+      descricao: productData.descricao,
+      quantidade: productData.quantidade,
     }
     const existing = Cypress.env('createdProducts') || []
     Cypress.env('createdProducts', [...existing, created])
@@ -74,27 +70,25 @@ Cypress.Commands.add('createProduct', (productData, token = Cypress.env('adminTo
 // Create products from fixture (keeps alias @products)
 Cypress.Commands.add('createProductsFromFixture', (token = Cypress.env('adminToken')) => {
   const getFreshData = require('../fixtures/productsData')
-  const { products } = getFreshData()
+  const { produtos } = getFreshData()
 
-  expect(products, 'products fixture').to.be.an('array').and.have.lengthOf.at.least(1);
-  expect(token, 'admin token for product creation').to.be.a('string').and.not.be.empty;
+  expect(produtos, 'products fixture').to.be.an('array').and.have.lengthOf.at.least(1)
+  expect(token, 'admin token for product creation').to.be.a('string').and.not.be.empty
 
   const created = []
-  
-  products.forEach((p) => {
-    const apiProduct = { 
-      nome: p.name || p.nome, 
-      preco: p.price || p.preco, 
-      descricao: p.description || p.descricao, 
-      quantidade: p.quantity || p.quantidade 
-    }
-    
-    cy.createProduct(apiProduct, token).then((res) => {
-      created.push(res)
-    })
-  })
 
-  return cy.wrap(created).as('products')
+  return produtos.reduce((chain, productFixture) => {
+    const apiProduct = {
+      nome: productFixture.nome,
+      preco: productFixture.preco,
+      descricao: productFixture.descricao,
+      quantidade: productFixture.quantidade,
+    }
+
+    return chain.then(() => cy.createProduct(apiProduct, token).then((res) => {
+      created.push(res)
+    }))
+  }, cy.wrap(null)).then(() => cy.wrap(created).as('products'))
 })
 
 //Cleanup test data: delete created products, users, and reset env variables
@@ -111,21 +105,15 @@ Cypress.Commands.add('cleanupTestData', () => {
 
   //Delete normal user
   if (userId && token) {
-    cy.request({
-      method: 'DELETE',
-      url: `${API_URL}/usuarios/${userId}`,
-      failOnStatusCode: false,
-      headers: { Authorization: token }
+    apiClient.delete(`/usuarios/${userId}`, {
+      headers: { Authorization: token },
     })
   }
 
  //Delete admin user
   if (adminId && token) {
-    cy.request({
-      method: 'DELETE',
-      url: `${API_URL}/usuarios/${adminId}`,
-      failOnStatusCode: false,
-      headers: { Authorization: token }
+    apiClient.delete(`/usuarios/${adminId}`, {
+      headers: { Authorization: token },
     })
   }
 
