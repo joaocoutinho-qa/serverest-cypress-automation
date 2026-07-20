@@ -4,7 +4,7 @@ Comprehensive test automation suite for Serverest using Cypress with enterprise-
 
 ## Features
 
-- **10 Independent Tests** (5 API + 5 Frontend) with automatic teardown
+- **08 Independent Tests** (4 API + 4 Frontend) with automatic teardown
 - **3 Design Patterns**: ApiClient, PageObject, Singleton
 - **Dynamic Data Generation** with Faker.js
 - **API Testing** with status, body, and persistence validations
@@ -28,15 +28,7 @@ cypress/
 ├── support/
 │   ├── apiClient.js                    (HTTP client)
 │   ├── commands.js                     (10 custom commands)
-- `apiLoginToken(email, password)` - Authenticate user and return token
-- `apiRegisterUser(userData)` - Register user via API
-- `apiCreateProduct(productData, token)` - Create product
-- `apiDeleteProduct(productId, token)` - Delete product
-- `createAuthenticatedUser(userData)` - Register and login a user (stores token/id in Cypress.env)
-- `createProductsFromFixture()` - Create products from `cypress/fixtures/productsData.js` using admin token
-- `uiLoginUser(email, password)` - UI login flow
-- `uiLogoutUser()` - UI logout flow
-- `cleanupTestData()` - Remove created products and users from the current test run
+
 ```bash
 npm install
 ```
@@ -44,9 +36,9 @@ npm install
 ### Run Tests
 
 ```bash
-npm test              # All 10 tests
-npm run test:api      # 5 API tests
-npm run test:frontend # 5 Frontend tests
+npm test              # All 810 tests
+npm run test:api      # 4 API tests
+npm run test:frontend # 4 Frontend tests
 npm run test:ui       # Interactive mode
 npm run test:headed   # With browser visible
 npm run report        # Generate HTML report
@@ -66,19 +58,17 @@ NODE_ENV=test
 
 ## Tests Implemented
 
-### API Tests (5 scenarios)
+### API Tests (4 scenarios)
 1. Register valid admin user and validate persistence
 2. Attempt to register user with duplicate email
-3. Register user and validate authentication flow
-4. Attempt to register user with missing required field
-5. Update user data after registration and validate changes
+3. Attempt to register user with missing required field
+4. Update user data after registration and validate changes
 
-### Frontend Tests (5 scenarios)
+### Frontend Tests (4 scenarios)
 1. Search for product and validate search results
 2. Add single product to shopping cart and validate persistence
 3. Add multiple products and clear entire cart
-4. Remove individual product from cart
-5. Update product quantity in cart
+4. Update product quantity in cart and validate price
 
 ## Design Patterns
 
