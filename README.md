@@ -18,23 +18,23 @@ Comprehensive test automation suite for Serverest using Cypress with enterprise-
 ```
 cypress/
 ├── e2e/
-│   ├── api/registerUser.cy.js          (5 API tests)
-│   └── front/shoppingList.cy.js        (5 Frontend tests)
+│   ├── api/registerUser.cy.js          (API tests)
+│   └── front/shoppingList.cy.js        (Frontend tests)
 ├── pageObjects/
-│   ├── api/registerUserPage.js         (11 API methods)
-│   ├── front/shoppingListPage.js       (13 UI methods)
+│   ├── api/registerUserPage.js         (API methods)
+│   ├── front/shoppingListPage.js       (UI methods)
 │   ├── basePageObject.js               (removed)
 │   └── exportPages.js                  (Canonical PageObjects registry)
 ├── support/
 │   ├── apiClient.js                    (HTTP client)
-│   ├── commands.js                     (10 custom commands)
+│   ├── commands.js                     (Ccustom commands)
 
 ### Run Tests
 
 ```bash
-npm test              # All 810 tests
-npm run test:api      # 4 API tests
-npm run test:frontend # 4 Frontend tests
+npm test              # All tests
+npm run test:api      # API tests
+npm run test:frontend # Frontend tests
 npm run test:ui       # Interactive mode
 npm run test:headed   # With browser visible
 npm run report        # Generate HTML report
