@@ -7,51 +7,101 @@ on:
     branches: [ main ]
 
 jobs:
-  project-setup:
+  # 1. Parallel Job for API Tests (Generates only JSON files)
+  api-tests:
     runs-on: ubuntu-latest
-
     steps:
-      # clone repository
       - name: Clone repository
         uses: actions/checkout@v4
 
-      # Configure node.js
       - name: Configure node js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      # Install project dependencies
       - name: Install dependencies
         run: npm install
 
-  test-execution:
-    runs-on: ubuntu-latest
-    needs: project-setup
+      - name: API Test Execution
+        run: npx cypress run --spec "cypress/e2e/api/**/*.cy.js" --reporter mochawesome --reporter-options reportDir=cypress/report,overwrite=false,html=false,json=true
+        continue-on-error: true
 
-    steps:
-      # clone repository 
-      - name: Clone repository
-        uses: actions/checkout@v4
-
-      # Configure node.js
-      - name: Configure node js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      # Install project dependencies
-      - name: Install dependencies
-        run: npm install
-
-      # Automation Test Execution
-      - name: Automation Test Execution
-        run: npm test
-
-      # Upload Test Report
-      - name: Upload Test Report
-        if: always()
+      - name: Upload API JSON Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: automated-test-report
+          name: api-json-results
+          path: cypress/report/
+
+  # 2. Parallel Job for Frontend Tests (Generates only JSON files)
+  frontend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Configure node js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Frontend Test Execution
+        run: npx cypress run --spec "cypress/e2e/front/**/*.cy.js" --reporter mochawesome --reporter-options reportDir=cypress/report,overwrite=false,html=false,json=true
+        continue-on-error: true
+
+      - name: Upload Frontend JSON Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-json-results
+          path: cypress/report/
+
+  # 3. Finalization Job (Runs AFTER both test jobs finish, merges results, and generates the HTML report)
+  generate-final-report:
+    runs-on: ubuntu-latest
+    needs: [api-tests, frontend-tests]
+    if: always() 
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Configure node js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      # Create the temporary directory where we will download the test results
+      - name: Create Report Directory
+        run: mkdir -p cypress/report
+
+      # Download JSON files generated during the API test execution
+      - name: Download API Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: api-json-results
+          path: cypress/report
+
+      # Download JSON files generated during the Frontend test execution
+      - name: Download Frontend Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-json-results
+          path: cypress/report
+
+      # Merge all JSON files and generate the HTML report using the package.json scripts
+      - name: Merge and Generate HTML Report
+        run: |
+          npm run report:merge
+          npm run report:gen
+
+      # Upload the final consolidated "test_report.html" file as a workflow artifact
+      - name: Upload Final Consolidated Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Serverest-Consolidated-Test-Report
           path: cypress/report/
