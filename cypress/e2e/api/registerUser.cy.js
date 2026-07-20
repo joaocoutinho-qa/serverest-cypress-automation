@@ -44,18 +44,18 @@ describe('User Registration API Tests', () => {
     })
   })
 
-  it('Update user data after registration and validate changes', () => {
-    const updatedData = { name: 'Updated Name' }
+ it('Update user data after registration and validate changes', () => {
+  const updatedData = { nome: 'Updated Name' }
 
-    //actions
-    return UserAPI.updateUser(userId, { ...userData.normalUser, name: updatedData.name }, authToken)
-      //asserts
-      .then((updateResponse) => {
-        expect(updateResponse.status).to.be.oneOf([200, 201])
-        return UserAPI.validateUserPersistence(userId, authToken)
-      })
-      .then((persistedUser) => {
-        expect(persistedUser.name).to.equal(updatedData.name)
-      })
+  return UserAPI.updateUser(userId, { ...userData.normalUser, nome: updatedData.nome }, authToken)
+    
+    //asserts
+    .then((updateResponse) => {
+      expect(updateResponse.status).to.be.oneOf([200, 201])
+      return UserAPI.validateUserPersistence(userId, authToken)
+    })
+    .then((persistedUser) => {
+      expect(persistedUser.name).to.equal(updatedData.nome)
+    })
   })
 })
