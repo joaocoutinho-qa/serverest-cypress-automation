@@ -3,26 +3,14 @@ import Pages from '../../support/exportPages'
 const UserAPI = Pages.UserAPI
 
 describe('User Registration API Tests', () => {
-  let userId
-  let authToken
-  let adminId      
-  let adminToken  
-  let baseEmail
+  let userId, authToken, adminId, adminToken
 
   beforeEach(() => {
-    baseEmail = userData.normalUser.email
-    return cy
-      .createAuthenticatedUser(userData.adminUser)
-      .then((createdAdmin) => {
-        adminId = createdAdmin.userId     
-        adminToken = createdAdmin.token
-      })
-      .then(() => cy.createAuthenticatedUser(userData.normalUser))
-      .then((createdNormal) => {
-        userId = createdNormal.userId
-        authToken = createdNormal.token
-      })
-  })
+    return cy.createAuthenticatedUser(userData.adminUser)
+        .then(({ userId: id, token }) => { adminId = id; adminToken = token })
+        .then(() => cy.createAuthenticatedUser(userData.normalUser))
+        .then(({ userId: id, token }) => { userId = id; authToken = token })
+    })
 
   afterEach(() => {
     return cy.cleanupTestData()
@@ -39,7 +27,7 @@ describe('User Registration API Tests', () => {
 
   it('Attempt to register user with duplicate email', () => {
     //actions & asserts: attempt to register same email again
-    return UserAPI.registerUser({ ...userData.normalUser, email: baseEmail }).then((duplicateResponse) => {
+    return UserAPI.registerUser(userData.normalUser).then((duplicateResponse) => {
       UserAPI.validateResponseStatus(duplicateResponse, 400)
       UserAPI.validateResponseHasMessage(duplicateResponse, 'Este email já está sendo usado')
     })
