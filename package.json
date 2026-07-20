@@ -7,7 +7,7 @@
     "clean:report": "rimraf cypress/report",
     "cypress:run": "cypress run --reporter mochawesome --reporter-options reportDir=cypress/report,overwrite=false,html=false,json=true",
     "test:ui": "cypress open",
-    "report:merge": "npx mochawesome-merge cypress/report/mochawesome*.json > cypress/report/index.json",
+    "report:merge": "npx mochawesome-merge cypress/report/*.json > cypress/report/index.json",
     "report:gen": "npx mochawesome-report-generator cypress/report/index.json --reportDir cypress/report --reportFilename test_report --reportTitle \"Serverest Test Report\"",
     "test": "npm run clean:report && (npm run cypress:run || true) && npm run report:merge && npm run report:gen"
 },

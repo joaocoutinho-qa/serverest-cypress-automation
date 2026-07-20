@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  # 1. Parallel Job for API Tests (Generates only JSON files)
-  api-tests:
+  # 1. Project Setup Job (Prepares environment and installs dependencies)
+  project-setup:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
@@ -22,8 +22,39 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      # Share the installed node_modules with the next jobs to save time
+      - name: Upload node_modules artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-dependencies
+          path: node_modules/
+
+  # 2. Parallel Job for API Tests (Depends on project-setup)
+  api-tests:
+    runs-on: ubuntu-latest
+    needs: project-setup
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Configure node js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Download node_modules artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: project-dependencies
+          path: node_modules/
+
+      # Clean potential leftover files from Git
+      - name: Clean report directory
+        run: npm run clean:report || true
+
+      # Run API tests with a UNIQUE filename: api-result
       - name: API Test Execution
-        run: npx cypress run --spec "cypress/e2e/api/**/*.cy.js" --reporter mochawesome --reporter-options reportDir=cypress/report,overwrite=false,html=false,json=true
+        run: npx cypress run --spec "cypress/e2e/api/**/*.cy.js" --reporter mochawesome --reporter-options reportDir=cypress/report,overwrite=false,html=false,json=true,reportFilename=api-result
         continue-on-error: true
 
       - name: Upload API JSON Artifacts
@@ -32,9 +63,10 @@ jobs:
           name: api-json-results
           path: cypress/report/
 
-  # 2. Parallel Job for Frontend Tests (Generates only JSON files)
+  # 3. Parallel Job for Frontend Tests (Depends on project-setup, runs at the same time as api-tests)
   frontend-tests:
     runs-on: ubuntu-latest
+    needs: project-setup
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
@@ -44,11 +76,19 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install dependencies
-        run: npm install
+      - name: Download node_modules artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: project-dependencies
+          path: node_modules/
 
+      # Clean potential leftover files from Git
+      - name: Clean report directory
+        run: npm run clean:report || true
+
+      # Run Frontend tests with a UNIQUE filename: front-result
       - name: Frontend Test Execution
-        run: npx cypress run --spec "cypress/e2e/front/**/*.cy.js" --reporter mochawesome --reporter-options reportDir=cypress/report,overwrite=false,html=false,json=true
+        run: npx cypress run --spec "cypress/e2e/front/**/*.cy.js" --reporter mochawesome --reporter-options reportDir=cypress/report,overwrite=false,html=false,json=true,reportFilename=front-result
         continue-on-error: true
 
       - name: Upload Frontend JSON Artifacts
@@ -57,11 +97,11 @@ jobs:
           name: frontend-json-results
           path: cypress/report/
 
-  # 3. Finalization Job (Runs AFTER both test jobs finish, merges results, and generates the HTML report)
+  # 4. Finalization Job (Depends on both test jobs, merges results and creates the final HTML)
   generate-final-report:
     runs-on: ubuntu-latest
     needs: [api-tests, frontend-tests]
-    if: always() 
+    if: always()
 
     steps:
       - name: Clone repository
@@ -72,12 +112,17 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install dependencies
-        run: npm install
+      - name: Download node_modules artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: project-dependencies
+          path: node_modules/
 
-      # Create the temporary directory where we will download the test results
-      - name: Create Report Directory
-        run: mkdir -p cypress/report
+      # Ensure a clean slate before downloading the new results
+      - name: Create Clean Report Directory
+        run: |
+          npm run clean:report || true
+          mkdir -p cypress/report
 
       # Download JSON files generated during the API test execution
       - name: Download API Artifacts
@@ -93,13 +138,13 @@ jobs:
           name: frontend-json-results
           path: cypress/report
 
-      # Merge all JSON files and generate the HTML report using the package.json scripts
+      # Merge unique JSON files (api-result.json and front-result.json) and generate HTML
       - name: Merge and Generate HTML Report
         run: |
           npm run report:merge
           npm run report:gen
 
-      # Upload the final consolidated "test_report.html" file as a workflow artifact
+      # Upload the final consolidated report
       - name: Upload Final Consolidated Report
         uses: actions/upload-artifact@v4
         with:
