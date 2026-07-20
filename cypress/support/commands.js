@@ -4,7 +4,7 @@ import apiClient from './apiClient'
 const API_URL = Cypress.env('apiUrl')
 Cypress.Commands.add('apiRegisterUser', (userData) => apiClient.post('/usuarios', userData))
 
-// Return auth token (does not mutate env)
+// Perform API login and return auth token
 Cypress.Commands.add('apiLoginToken', (email, password) =>
   apiClient.post('/login', { email, password }).then((response) => {
     expect(response.status, 'login response status').to.equal(200)
@@ -73,48 +73,70 @@ Cypress.Commands.add('createProduct', (productData, token = Cypress.env('adminTo
 
 // Create products from fixture (keeps alias @products)
 Cypress.Commands.add('createProductsFromFixture', (token = Cypress.env('adminToken')) => {
-  delete require.cache[require.resolve('../fixtures/productsData')]
-  const fixture = require('../fixtures/productsData')
-  const products = fixture.products || fixture.produtos || []
-  expect(products, 'products fixture').to.be.an('array').and.have.lengthOf.at.least(1)
-  expect(token, 'admin token for product creation').to.be.a('string').and.not.be.empty
+  const getFreshData = require('../fixtures/productsData')
+  const { products } = getFreshData()
+
+  expect(products, 'products fixture').to.be.an('array').and.have.lengthOf.at.least(1);
+  expect(token, 'admin token for product creation').to.be.a('string').and.not.be.empty;
 
   const created = []
-  const createNext = (i) => {
-    if (i >= products.length) return cy.wrap(created)
-    const p = products[i]
-    const apiProduct = { nome: p.name || p.nome, preco: p.price || p.preco, descricao: p.description || p.descricao, quantidade: p.quantity || p.quantidade }
-    return cy.createProduct(apiProduct, token).then((res) => {
+  
+  products.forEach((p) => {
+    const apiProduct = { 
+      nome: p.name || p.nome, 
+      preco: p.price || p.preco, 
+      descricao: p.description || p.descricao, 
+      quantidade: p.quantity || p.quantidade 
+    }
+    
+    cy.createProduct(apiProduct, token).then((res) => {
       created.push(res)
-      return createNext(i + 1)
     })
-  }
+  })
 
-  return createNext(0).then((res) => cy.wrap(res).as('products'))
+  return cy.wrap(created).as('products')
 })
 
 //Cleanup test data: delete created products, users, and reset env variables
 Cypress.Commands.add('cleanupTestData', () => {
-  const productIds = (Cypress.env('createdProducts') || []).map((p) => p._id)
-  const token = Cypress.env('adminToken') || Cypress.env('authToken')
-  const userId = Cypress.env('createdUserId')
-  const adminId = Cypress.env('createdAdminId')
+  const products = Cypress.env('createdProducts') || []
+  const token    = Cypress.env('adminToken') || Cypress.env('authToken')
+  const userId   = Cypress.env('createdUserId')
+  const adminId  = Cypress.env('createdAdminId')
 
-  const deleteProducts = (idx) => {
-    if (idx >= productIds.length) return cy.wrap(null)
-    return cy.apiDeleteProduct(productIds[idx], token).then(() => deleteProducts(idx + 1))
+  //Delete all products
+  products.forEach((product) => {
+    cy.apiDeleteProduct(product._id, token)
+  })
+
+  //Delete normal user
+  if (userId && token) {
+    cy.request({
+      method: 'DELETE',
+      url: `${API_URL}/usuarios/${userId}`,
+      failOnStatusCode: false,
+      headers: { Authorization: token }
+    })
   }
 
-  return deleteProducts(0)
-    .then(() => (userId && token ? cy.request({ method: 'DELETE', url: `${API_URL}/usuarios/${userId}`, failOnStatusCode: false, headers: { Authorization: token } }) : cy.wrap(null)))
-    .then(() => (adminId && token ? cy.request({ method: 'DELETE', url: `${API_URL}/usuarios/${adminId}`, failOnStatusCode: false, headers: { Authorization: token } }) : cy.wrap(null)))
-    .then(() => {
-      Cypress.env('createdProducts', [])
-      Cypress.env('createdUserId', null)
-      Cypress.env('createdAdminId', null)
-      Cypress.env('authToken', null)
-      Cypress.env('adminToken', null)
+ //Delete admin user
+  if (adminId && token) {
+    cy.request({
+      method: 'DELETE',
+      url: `${API_URL}/usuarios/${adminId}`,
+      failOnStatusCode: false,
+      headers: { Authorization: token }
     })
+  }
+
+  //Clean variables
+  cy.then(() => {
+    Cypress.env('createdProducts', [])
+    Cypress.env('createdUserId', null)
+    Cypress.env('createdAdminId', null)
+    Cypress.env('authToken', null)
+    Cypress.env('adminToken', null)
+  })
 })
 
 // UI login command

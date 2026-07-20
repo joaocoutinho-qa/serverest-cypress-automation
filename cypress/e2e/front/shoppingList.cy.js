@@ -5,9 +5,9 @@ const shoppingListPage = Pages.ShoppingListPage
 describe('Shopping List Frontend Tests', () => {
   beforeEach(() => {
     shoppingListPage.setupInterceptors()
+    cy.createAuthenticatedUser(userData.normalUser)
     cy.createAuthenticatedUser(userData.adminUser)
     cy.createProductsFromFixture()
-    cy.createAuthenticatedUser(userData.normalUser)
     cy.uiLoginUser(userData.normalUser.email, userData.normalUser.password)
   })
 
@@ -16,6 +16,7 @@ describe('Shopping List Frontend Tests', () => {
   })
 
   it('Search for product and validate search results', () => {
+    Cypress.env('createdProducts')
     cy.get('@products').then((products) => {
       const createdProduct = products[0]
       shoppingListPage.searchProduct(createdProduct.name)
