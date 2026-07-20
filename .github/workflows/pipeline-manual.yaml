@@ -51,4 +51,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: manual-test-report
-          path: cypress/my-report/
+          path: cypress/report/
