@@ -7,29 +7,23 @@ on:
     branches: [ main ]
 
 jobs:
-  # 1. Project Setup Job (Prepares environment and installs dependencies)
+  # 1. Project Setup Job (Prepares environment and caches dependencies)
   project-setup:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
 
-      - name: Configure node js
+      - name: Configure node js with cache
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm' # Enables automatic caching of global npm dependencies
 
       - name: Install dependencies
         run: npm install
 
-      # Share the installed node_modules with the next jobs to save time
-      - name: Upload node_modules artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: project-dependencies
-          path: node_modules/
-
-  # 2. Parallel Job for API Tests (Depends on project-setup)
+  # 2. Parallel Job for API Tests
   api-tests:
     runs-on: ubuntu-latest
     needs: project-setup
@@ -37,22 +31,18 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v4
 
-      - name: Configure node js
+      - name: Configure node js with cache
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
 
-      - name: Download node_modules artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: project-dependencies
-          path: node_modules/
+      - name: Install dependencies from cache
+        run: npm ci # Faster install that uses cached dependencies safely
 
-      # Clean potential leftover files from Git
       - name: Clean report directory
         run: npm run clean:report || true
 
-      # Run API tests with a UNIQUE filename: api-result
       - name: API Test Execution
         run: npx cypress run --spec "cypress/e2e/api/**/*.cy.js" --reporter mochawesome --reporter-options reportDir=cypress/report,overwrite=false,html=false,json=true,reportFilename=api-result
         continue-on-error: true
@@ -63,7 +53,7 @@ jobs:
           name: api-json-results
           path: cypress/report/
 
-  # 3. Parallel Job for Frontend Tests (Depends on project-setup, runs at the same time as api-tests)
+  # 3. Parallel Job for Frontend Tests
   frontend-tests:
     runs-on: ubuntu-latest
     needs: project-setup
@@ -71,22 +61,18 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v4
 
-      - name: Configure node js
+      - name: Configure node js with cache
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
 
-      - name: Download node_modules artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: project-dependencies
-          path: node_modules/
+      - name: Install dependencies from cache
+        run: npm ci
 
-      # Clean potential leftover files from Git
       - name: Clean report directory
         run: npm run clean:report || true
 
-      # Run Frontend tests with a UNIQUE filename: front-result
       - name: Frontend Test Execution
         run: npx cypress run --spec "cypress/e2e/front/**/*.cy.js" --reporter mochawesome --reporter-options reportDir=cypress/report,overwrite=false,html=false,json=true,reportFilename=front-result
         continue-on-error: true
@@ -97,7 +83,7 @@ jobs:
           name: frontend-json-results
           path: cypress/report/
 
-  # 4. Finalization Job (Depends on both test jobs, merges results and creates the final HTML)
+  # 4. Finalization Job
   generate-final-report:
     runs-on: ubuntu-latest
     needs: [api-tests, frontend-tests]
@@ -107,44 +93,37 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v4
 
-      - name: Configure node js
+      - name: Configure node js with cache
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
 
-      - name: Download node_modules artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: project-dependencies
-          path: node_modules/
+      - name: Install dependencies from cache
+        run: npm ci
 
-      # Ensure a clean slate before downloading the new results
       - name: Create Clean Report Directory
         run: |
           npm run clean:report || true
           mkdir -p cypress/report
 
-      # Download JSON files generated during the API test execution
       - name: Download API Artifacts
         uses: actions/download-artifact@v4
         with:
           name: api-json-results
           path: cypress/report
 
-      # Download JSON files generated during the Frontend test execution
       - name: Download Frontend Artifacts
         uses: actions/download-artifact@v4
         with:
           name: frontend-json-results
           path: cypress/report
 
-      # Merge unique JSON files (api-result.json and front-result.json) and generate HTML
       - name: Merge and Generate HTML Report
         run: |
           npm run report:merge
           npm run report:gen
 
-      # Upload the final consolidated report
       - name: Upload Final Consolidated Report
         uses: actions/upload-artifact@v4
         with:
