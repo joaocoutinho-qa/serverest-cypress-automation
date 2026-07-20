@@ -38,13 +38,16 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies from cache
-        run: npm ci # Faster install that uses cached dependencies safely
+        run: npm ci 
 
       - name: Clean report directory
         run: npm run clean:report || true
 
       - name: API Test Execution
         run: npx cypress run --spec "cypress/e2e/api/**/*.cy.js" --reporter mochawesome --reporter-options reportDir=cypress/report,overwrite=false,html=false,json=true,reportFilename=api-result
+        env:
+          SERVEREST_API_URL: https://serverest.dev
+          SERVEREST_FRONT_URL: https://front.serverest.dev
         continue-on-error: true
 
       - name: Upload API JSON Artifacts
@@ -75,6 +78,9 @@ jobs:
 
       - name: Frontend Test Execution
         run: npx cypress run --spec "cypress/e2e/front/**/*.cy.js" --reporter mochawesome --reporter-options reportDir=cypress/report,overwrite=false,html=false,json=true,reportFilename=front-result
+        env:
+          SERVEREST_API_URL: https://serverest.dev
+          SERVEREST_FRONT_URL: https://front.serverest.dev
         continue-on-error: true
 
       - name: Upload Frontend JSON Artifacts
