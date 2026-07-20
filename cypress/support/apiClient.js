@@ -72,24 +72,6 @@ class ApiClient {
     return cy.request(config)
   }
 
-  delete(endpoint, options = {}) {
-    const config = {
-      method: 'DELETE',
-      url: `${this.baseUrl}${endpoint}`,
-      failOnStatusCode: false,
-      timeout: this.timeout,
-      ...options,
-    }
-
-    if (this.token) {
-      config.headers = {
-        ...config.headers,
-        Authorization: this.token,
-      }
-    }
-
-    return cy.request(config)
-  }
 }
 
 export default new ApiClient()

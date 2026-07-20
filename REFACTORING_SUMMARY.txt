@@ -3,7 +3,7 @@ REFACTORING SUMMARY
 
 WHAT WAS DONE
 - 10 independent tests created (5 API + 5 Frontend)
-- 4 design patterns implemented (ApiClient, BasePageObject, PageObject, Singleton)
+- 3 design patterns implemented (ApiClient, PageObject, Singleton)
 - Dynamic data generation with Faker.js
 - Robust API validations (status, body, persistence)
 - cy.intercept() for frontend automation
@@ -24,10 +24,9 @@ FILES MODIFIED
 - cypress/e2e/front/shoppingList.cy.js (5 tests)
 - cypress/pageObjects/api/registerUserPage.js
 - cypress/pageObjects/front/shoppingListPage.js
-- cypress/pageObjects/basePageObject.js
-- cypress/pageObjects/exportPageObjects.js
+- cypress/support/exportPages.js
 - cypress/support/commands.js (10 commands)
-- cypress/support/clients/apiClient.js (new)
+- cypress/support/apiClient.js (new)
 - cypress/fixtures/userData.js
 - .env (new)
 - cypress.config.js

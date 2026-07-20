@@ -5,7 +5,7 @@ Comprehensive test automation suite for Serverest using Cypress with enterprise-
 ## Features
 
 - **10 Independent Tests** (5 API + 5 Frontend) with automatic teardown
-- **4 Design Patterns**: ApiClient, BasePageObject, PageObject, Singleton
+- **3 Design Patterns**: ApiClient, PageObject, Singleton
 - **Dynamic Data Generation** with Faker.js
 - **API Testing** with status, body, and persistence validations
 - **Frontend Automation** with cy.intercept() and standardized data-testid selectors
@@ -23,21 +23,20 @@ cypress/
 ├── pageObjects/
 │   ├── api/registerUserPage.js         (11 API methods)
 │   ├── front/shoppingListPage.js       (13 UI methods)
-│   ├── basePageObject.js               (Base class)
-│   └── exportPageObjects.js            (PageObjects registry)
+│   ├── basePageObject.js               (removed)
+│   └── exportPages.js                  (Canonical PageObjects registry)
 ├── support/
 │   ├── apiClient.js                    (HTTP client)
 │   ├── commands.js                     (10 custom commands)
-│   └── e2e.js                          (Global hooks)
-└── fixtures/
-    ├── userData.js                     (Test user data)
-    └── productsData.js                 (Mock product data)
-```
-
-## Quick Start
-
-### Installation
-
+- `apiLoginToken(email, password)` - Authenticate user and return token
+- `apiRegisterUser(userData)` - Register user via API
+- `apiCreateProduct(productData, token)` - Create product
+- `apiDeleteProduct(productId, token)` - Delete product
+- `createAuthenticatedUser(userData)` - Register and login a user (stores token/id in Cypress.env)
+- `createProductsFromFixture()` - Create products from `cypress/fixtures/productsData.js` using admin token
+- `uiLoginUser(email, password)` - UI login flow
+- `uiLogoutUser()` - UI logout flow
+- `cleanupTestData()` - Remove created products and users from the current test run
 ```bash
 npm install
 ```
@@ -85,22 +84,20 @@ NODE_ENV=test
 
 1. **ApiClient Pattern**: Centralized HTTP client with token management
 2. **DataFactory Pattern**: Dynamic data generation with Faker.js
-3. **BasePageObject Pattern**: Reusable base class with common methods
-4. **PageObject Pattern**: Separation between test logic and UI/API
-5. **Singleton Pattern**: Unique instances for efficient state management
+3. **PageObject Pattern**: Separation between test logic and UI/API
+4. **Singleton Pattern**: Unique instances for efficient state management
 
 ## Custom Commands
 
+- `apiLoginToken(email, password)` - Authenticate user and return token
 - `apiRegisterUser(userData)` - Register user via API
-- `apiLogin(email, password)` - Authenticate user
 - `apiCreateProduct(productData, token)` - Create product
-- `apiListProducts(token)` - List all products
 - `apiDeleteProduct(productId, token)` - Delete product
-- `apiGetUserById(userId, token)` - Get user information
+- `createAuthenticatedUser(userData)` - Register and login a user (stores token/id in Cypress.env)
+- `createProductsFromFixture()` - Create products from `cypress/fixtures/productsData.js` using admin token
 - `uiLoginUser(email, password)` - UI login flow
 - `uiLogoutUser()` - UI logout flow
-- `cleanupUsers()` - Remove test users
-- `cleanupProducts()` - Remove test products
+- `cleanupTestData()` - Remove created products and users from the current test run
 
 ## Dependencies
 

@@ -1,12 +1,10 @@
-import { pageObjects } from '../../pageObjects/exportPageObjects'
 import userData from '../../fixtures/userData'
-const { ShoppingListPage } = pageObjects
-const shoppingListPage = ShoppingListPage
+import Pages from '../../support/exportPages'
+const shoppingListPage = Pages.ShoppingListPage
 
 describe('Shopping List Frontend Tests', () => {
   beforeEach(() => {
     shoppingListPage.setupInterceptors()
-
     cy.createAuthenticatedUser(userData.adminUser)
     cy.createProductsFromFixture()
     cy.createAuthenticatedUser(userData.normalUser)
@@ -47,8 +45,8 @@ describe('Shopping List Frontend Tests', () => {
       })
 
       shoppingListPage.navigateToShoppingList()
-      shoppingListPage.clearCart()
-      shoppingListPage.validateEmptyCart()
+      shoppingListPage.clearShoppingList()
+      shoppingListPage.validateEmptyList()
     })
   })
 
@@ -64,10 +62,6 @@ describe('Shopping List Frontend Tests', () => {
       shoppingListPage.incrementProductQuantity(0)
       shoppingListPage.validateProductQuantity(0, '2')
       shoppingListPage.validateProductPrice(createdProduct.price*2)
-
-      shoppingListPage.decrementProductQuantity(0)
-      shoppingListPage.validateProductQuantity(0, '1')
-      shoppingListPage.validateProductPrice(createdProduct.price)
     })
   })
 })

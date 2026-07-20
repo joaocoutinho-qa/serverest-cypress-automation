@@ -1,9 +1,7 @@
-import BasePageObject from '../basePageObject'
 import productsData from '../../fixtures/productsData'
 
-class ShoppingListPage extends BasePageObject {
+class ShoppingListPage {
   constructor() {
-    super()
     this.selectors = {
       searchInput:         '[data-testid="pesquisar"]',
       searchButton:        '[data-testid="botaoPesquisar"]',
@@ -69,11 +67,11 @@ class ShoppingListPage extends BasePageObject {
     return cy.get(this.selectors.cartProductName).its('length')
   }
 
-  clearCart() {
+  clearShoppingList() {
     cy.get(this.selectors.clearCartButton).click()
   }
 
-  validateEmptyCart() {
+  validateEmptyList() {
     cy.url().should('include', '/minhaListaDeProdutos')
     cy.get(this.selectors.emptyMessage)
       .should('be.visible')
@@ -81,7 +79,7 @@ class ShoppingListPage extends BasePageObject {
     cy.get(this.selectors.cartProductName).should('not.exist')
   }
 
-  removeProductFromCart(index = 0) {
+  removeProductFromShoppingList(index = 0) {
     cy.get(this.selectors.removeButton).eq(index).click()
   }
 

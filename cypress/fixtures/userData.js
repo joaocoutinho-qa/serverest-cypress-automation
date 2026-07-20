@@ -23,7 +23,7 @@ const userData = {
   invalidUserNoEmail: {
     nome: "Test User",
     email: "",
-    password: "Senha@1234",
+    password: `invalid${Date.now()}@email.com`,
     administrador: "false"
   },
 

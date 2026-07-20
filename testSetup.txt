@@ -26,14 +26,14 @@ FIXTURES
 - productsData.js: Mock product data for frontend tests
 
 CUSTOM COMMANDS (10)
-- apiRegisterUser(), apiLogin(), apiCreateProduct()
-- apiListProducts(), apiDeleteProduct(), apiGetUserById()
+- apiRegisterUser(), apiLoginToken(), apiCreateProduct()
+- apiDeleteProduct(), createAuthenticatedUser(), createProductsFromFixture()
 - uiLoginUser(), uiLogoutUser()
-- cleanupUsers(), cleanupProducts()
+- cleanupTestData()
 
 DESIGN PATTERNS
 - ApiClient: Centralized HTTP client
-- BasePageObject: Reusable base class
+- PageObject: Separation of test logic and UI/API
 - PageObject: Separation of concerns
 - Singleton: Unique instances
 

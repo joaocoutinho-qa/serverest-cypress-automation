@@ -1,8 +1,26 @@
 import apiClient from '../../support/apiClient'
 
 class RegisterUserPage {
+  translateUserPayload(userData) {
+    return {
+      nome: userData.name || userData.nome,
+      email: userData.email,
+      password: userData.password,
+      administrador: userData.isAdmin === true || userData.administrador === true || userData.administrador === 'true' ? 'true' : 'false',
+    }
+  }
+
+  normalizeUser(response) {
+    return {
+      id: response._id || response.id,
+      name: response.nome,
+      email: response.email,
+      isAdmin: response.administrador === 'true',
+    }
+  }
+
   registerUser(userData) {
-    return apiClient.post('/usuarios', userData)
+    return apiClient.post('/usuarios', this.translateUserPayload(userData))
   }
 
   validateResponseStatus(response, expectedStatus) {
@@ -33,7 +51,7 @@ class RegisterUserPage {
     }).then((response) => {
       expect(response.status).to.equal(200)
       expect(response.body).to.have.property('_id').equal(userId)
-      return response.body
+      return this.normalizeUser(response.body)
     })
   }
 
@@ -74,7 +92,7 @@ validateErrorSchema(response, missingField) {
       method: 'PUT',
       url: `${Cypress.env('apiUrl')}/usuarios/${userId}`,
       failOnStatusCode: false,
-      body: userData,
+      body: this.translateUserPayload(userData),
       headers: {
         Authorization: token,
       },
